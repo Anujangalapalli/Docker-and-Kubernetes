@@ -65,3 +65,11 @@ Delete all(only works when none are running)
 Force delete all
 
 * docker rm -f $(docker ps -aq)
+
+## name and Format containers
+
+Name containers
+
+* docker run --name containerName -d -p 8080:80 nginx:latest
+
+
