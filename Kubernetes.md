@@ -36,7 +36,53 @@ To get status of nodes
 * kubectl get services
 
 
+## Create pods
 
+create a pod
 
+* kubectl create deployment nginx-depl --image=nginx
+* kubectl get deployment
+* kubectl get pod
 
+Debugging pods
+* kubectl describe pod podName
+* kubectl logs podName
+* kubectl exec -it podName -- bin/bash
+* ls
 
+Creating Configured Deployment
+
+* kubectl apply -f fnginx-deployment.yaml
+
+nginx-deployment.yaml
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.16
+        ports:
+        - containerPort: 80
+```     
+* kubectl apply -f nginx-deployment.yaml
+~ created
+* kubectl get deployment
+* kubectl get pod
+Update nginx-deployment.yaml 
+
+* kubectl apply -f nginx-deployment.yaml
+~ configured
