@@ -146,10 +146,10 @@ Decode:
 >[System.Text.Encoding]::echo -n 'password' | base64
 )
 
->kubectl apply -f mongo-secret.yaml  
->kubectl apply -f mongo-deployment.yaml  
->kubectl get pod --watch  
->kubectl describe pod podNAME
+* kubectl apply -f mongo-secret.yaml  
+* kubectl apply -f mongo-deployment.yaml  
+* kubectl get pod --watch  
+* kubectl describe pod podNAME
 
 ### Create Internal Service
 Append to mongo-deployment.yaml:
@@ -167,13 +167,13 @@ Append to mongo-deployment.yaml:
           port: 27017
           targetPort: 27017
 
->kubectl apply -f mongo-deployment.yaml  
->kubectl get service  
->kubectl descibe service serviceNAME  
->kubectl get pod -o wide
+* kubectl apply -f mongo-deployment.yaml  
+* kubectl get service  
+* kubectl descibe service serviceNAME  
+* kubectl get pod -o wide
 
 To see all components about mongodb
->kubectl get all | grep mongodb
+* kubectl get all | grep mongodb
 
 ### Create Mongo Express Deployment
 Create mongo-express.yaml containing:
@@ -226,8 +226,8 @@ Create mongo-configmap.yaml containing:
     data:
         database_url: mongodb-service
 
->kubectl apply -f mongo-configmap.yaml  
->kubectl apply -f mongo-express.yaml
+* kubectl apply -f mongo-configmap.yaml  
+* kubectl apply -f mongo-express.yaml
 
 ### Create External Service
 Append to mongo-express.yaml:
@@ -247,12 +247,12 @@ Append to mongo-express.yaml:
           targetPort: 8081
           nodePort: 30000
 
->kubectl apply -f mongo-express.yaml  
->kubectl get service  
->kubectl describe service mongodb-service  
->kubectl get pod -o wide  
->kubectl describe pod podID  
->kubectl logs podID  
+* kubectl apply -f mongo-express.yaml  
+* kubectl get service  
+* kubectl describe service mongodb-service  
+* kubectl get pod -o wide  
+* kubectl describe pod podID  
+* kubectl logs podID  
 
 Serve Mongo Express
->minikube service mongo-express-service
+* minikube service mongo-express-service
