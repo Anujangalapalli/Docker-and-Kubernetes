@@ -256,3 +256,7 @@ Append to mongo-express.yaml:
 
 Serve Mongo Express
 * minikube service mongo-express-service
+
+## Cleanup
+
+* kubectl delete services,deployments -l app 
