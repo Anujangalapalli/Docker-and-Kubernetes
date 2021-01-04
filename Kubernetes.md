@@ -37,7 +37,7 @@ minikube comes with kubectl
 
 * minikube delete
 
-To get status of nodes
+### To get status of nodes
 
 * kubectl get nodes
 * kubectl version 
