@@ -24,10 +24,18 @@ MiniKube
 
 minikube comes with kubectl
 
-## Start virtual minikube cluster
+### Start virtual minikube cluster
 
 * minikube start --vm-driver=hyperkit
 * minikube status
+
+### Stop cluster
+
+* minikube stop
+
+### Remove cluster
+
+* minikube delete
 
 To get status of nodes
 
