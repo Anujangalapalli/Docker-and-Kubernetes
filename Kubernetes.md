@@ -78,6 +78,7 @@ spec:
         ports:
         - containerPort: 80
 ```     
+
 * kubectl apply -f nginx-deployment.yaml
 ~ created
 * kubectl get deployment
@@ -86,3 +87,172 @@ Update nginx-deployment.yaml
 
 * kubectl apply -f nginx-deployment.yaml
 ~ configured
+
+## Example Mongo Application
+### Create Deployment
+
+mongo-deployment.yaml 
+```
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: mongodb-deployment
+      labels:
+        app: mongodb
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: mongodb
+      template:
+        metadata:
+          labels:
+            app: mongodb
+        spec:
+          containers:
+            - name: mongodb
+              image: mongo
+              ports:
+                - containerPort: 27017
+              env:
+                - name: MONGO_INITDB_ROOT_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: mongodb-secret
+                      key: mongo-root-username
+                - name: MONGO_INITDB_ROOT_PASSWORD
+                  valueFrom: 
+                    secretKeyRef:
+                      name: mongodb-secret
+                      key: mongo-root-password
+```
+
+### Create Secret
+mongo-secret.yaml 
+```
+    apiVersion: v1
+    kind: Secret
+    metadata:
+        name: mongodb-secret
+    type: Opaque
+    data:
+        mongo-root-username: dXNlcm5hbWU=
+        mongo-root-password: cGFzc3dvcmQ=
+```
+Encode:
+>[Convert]::ToBase64String(echo -n 'username' | base64)
+
+Decode:
+>[System.Text.Encoding]::echo -n 'password' | base64
+)
+
+>kubectl apply -f mongo-secret.yaml  
+>kubectl apply -f mongo-deployment.yaml  
+>kubectl get pod --watch  
+>kubectl describe pod podNAME
+
+### Create Internal Service
+Append to mongo-deployment.yaml:
+
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: mongodb-service
+    spec:
+      selector:
+        app: mongodb
+      ports:
+        - protocol: TCP
+          port: 27017
+          targetPort: 27017
+
+>kubectl apply -f mongo-deployment.yaml  
+>kubectl get service  
+>kubectl descibe service serviceNAME  
+>kubectl get pod -o wide
+
+To see all components about mongodb
+>kubectl get all | grep mongodb
+
+### Create Mongo Express Deployment
+Create mongo-express.yaml containing:
+
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: mongo-express
+      labels:
+        app: mongo-express
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: mongo-express
+      template:
+        metadata:
+          labels:
+            app: mongo-express
+        spec:
+          containers:
+          - name: mongo-express
+            image: mongo-express
+            ports:
+            - containerPort: 8081
+            env:
+            - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-root-username
+            - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-root-password
+            - name: ME_CONFIG_MONGODB_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: mongodb-configmap
+                  key: database_url
+
+### Create ConfigMap
+Create mongo-configmap.yaml containing:
+
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+        name: mongodb-configmap
+    data:
+        database_url: mongodb-service
+
+>kubectl apply -f mongo-configmap.yaml  
+>kubectl apply -f mongo-express.yaml
+
+### Create External Service
+Append to mongo-express.yaml:
+
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: mongo-express-service
+    spec:
+      selector:
+        app: mongo-express
+      type: LoadBalancer
+      ports:
+        - protocol: TCP
+          port: 8081
+          targetPort: 8081
+          nodePort: 30000
+
+>kubectl apply -f mongo-express.yaml  
+>kubectl get service  
+>kubectl describe service mongodb-service  
+>kubectl get pod -o wide  
+>kubectl describe pod podID  
+>kubectl logs podID  
+
+Serve Mongo Express
+>minikube service mongo-express-service
